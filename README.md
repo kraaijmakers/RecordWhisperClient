@@ -108,8 +108,8 @@ Transcription:
 ### Development Build
 ```bash
 # Clone and build
-git clone [repository-url]
-cd WhisperUI-Win32
+git clone https://github.com/kraaijmakers/RecordWhisperClient
+cd RecordWhisperClient
 dotnet build
 ```
 
