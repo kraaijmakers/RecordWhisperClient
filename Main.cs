@@ -26,7 +26,7 @@ namespace RecordWhisperClient
         private string transcriptionLanguage = "auto";
         private string whisperServerUrl = "http://127.0.0.1:8080";
         private string apiKey = "";
-        private bool transcriptionEnabled = true;
+        private bool transcriptionEnabled = false;
         private bool hotkeyEnabled = true;
         private bool hotkeyCtrl = true;
         private bool hotkeyShift = true;
@@ -214,7 +214,11 @@ namespace RecordWhisperClient
                     {
                         Logger.Info("Whisper server connection test passed");
                         // Show startup notification since connection is good
-                        this.Invoke(new Action(() => PlayStartupSound()));
+                        this.Invoke(new Action(() => 
+                        {
+                            systemTrayManager.UpdateConnectionStatus(true);
+                            PlayStartupSound();
+                        }));
                     }
                     else
                     {
@@ -222,6 +226,7 @@ namespace RecordWhisperClient
                         // Show startup notification but with warning
                         this.Invoke(new Action(() => 
                         {
+                            systemTrayManager.UpdateConnectionStatus(false);
                             PlayStartupSound();
                             systemTrayManager.ShowNotification("Whisper Server Warning", 
                                 "Cannot reach Whisper server - transcription disabled until server is available", 
@@ -235,6 +240,7 @@ namespace RecordWhisperClient
                 Logger.Warning("Whisper connection test timed out during startup");
                 this.Invoke(new Action(() => 
                 {
+                    systemTrayManager.UpdateConnectionStatus(false);
                     PlayStartupSound();
                     systemTrayManager.ShowNotification("Whisper Server Timeout", 
                         "Connection test timed out - check server availability in Configuration", 
@@ -246,6 +252,7 @@ namespace RecordWhisperClient
                 Logger.Error("Error during Whisper connection test", ex);
                 this.Invoke(new Action(() => 
                 {
+                    systemTrayManager.UpdateConnectionStatus(false);
                     PlayStartupSound();
                     systemTrayManager.ShowNotification("Whisper Server Error", 
                         "Connection test failed - check Configuration settings", 
@@ -290,11 +297,13 @@ namespace RecordWhisperClient
                 if (isConnected)
                 {
                     Logger.Info("Whisper server connection test passed");
+                    systemTrayManager.UpdateConnectionStatus(true);
                     systemTrayManager.ShowNotification("Connection Test", "Whisper server is accessible", System.Windows.Forms.ToolTipIcon.Info);
                 }
                 else
                 {
                     Logger.Warning("Whisper server connection test failed");
+                    systemTrayManager.UpdateConnectionStatus(false);
                     
                     // Show error dialog on UI thread for configuration changes
                     this.Invoke(new Action(() =>
@@ -309,6 +318,7 @@ namespace RecordWhisperClient
             catch (Exception ex)
             {
                 Logger.Error("Error during Whisper connection test", ex);
+                systemTrayManager.UpdateConnectionStatus(false);
                 
                 // Show error dialog on UI thread for configuration changes
                 this.Invoke(new Action(() =>
@@ -385,6 +395,9 @@ namespace RecordWhisperClient
 
                 string transcription = await whisperService.TranscribeAudio(audioFilePath);
 
+                // If transcription succeeds, connection is OK
+                systemTrayManager.UpdateConnectionStatus(true);
+
                 if (!string.IsNullOrWhiteSpace(transcription))
                 {
                     await whisperService.SaveTranscription(audioFilePath, transcription, audioService);
@@ -411,6 +424,15 @@ namespace RecordWhisperClient
             }
             catch (Exception ex)
             {
+                // Check if this is a connection-related error
+                if (ex.Message.Contains("Could not connect to Whisper server") || 
+                    ex.Message.Contains("Request timed out") ||
+                    ex.InnerException is System.Net.Http.HttpRequestException ||
+                    ex.InnerException is TaskCanceledException)
+                {
+                    systemTrayManager.UpdateConnectionStatus(false);
+                }
+                
                 systemTrayManager.ShowNotification("Transcription Error", ex.Message);
             }
         }
@@ -418,12 +440,13 @@ namespace RecordWhisperClient
         private void ToggleCopyToClipboard()
         {
             copyToClipboard = !copyToClipboard;
-            systemTrayManager.UpdateMenuStates(verboseNotifications, copyToClipboard);
+            systemTrayManager.UpdateMenuStates(copyToClipboard, transcriptionEnabled);
         }
 
         private void ToggleTranscription()
         {
             transcriptionEnabled = !transcriptionEnabled;
+            systemTrayManager.UpdateMenuStates(copyToClipboard, transcriptionEnabled);
             SaveSettings();
             string status = transcriptionEnabled ? "enabled" : "disabled";
             systemTrayManager.ShowNotification("Transcription", $"Transcription {status}");
@@ -561,7 +584,7 @@ namespace RecordWhisperClient
                 verboseNotifications = settingsManager.GetBoolValue("Options", "VerboseNotifications", false);
                 showRecordingNotifications = settingsManager.GetBoolValue("Options", "ShowRecordingNotifications", true);
                 copyToClipboard = settingsManager.GetBoolValue("Options", "CopyToClipboard", true);
-                transcriptionEnabled = settingsManager.GetBoolValue("Options", "TranscriptionEnabled", true);
+                transcriptionEnabled = settingsManager.GetBoolValue("Options", "TranscriptionEnabled", false);
                 transcriptionLanguage = settingsManager.GetValue("Options", "TranscriptionLanguage", "auto");
                 apiKey = settingsManager.GetValue("Options", "ApiKey", "");
 
@@ -595,7 +618,7 @@ namespace RecordWhisperClient
                 verboseNotifications = false;
                 showRecordingNotifications = true;
                 copyToClipboard = true;
-                transcriptionEnabled = true;
+                transcriptionEnabled = false;
                 transcriptionLanguage = "auto";
                 apiKey = "";
                 hotkeyEnabled = true;
@@ -686,7 +709,7 @@ namespace RecordWhisperClient
                     silenceTimeoutMs = configForm.SilenceTimeoutMs;
 
                     SetupWhisperClient();
-                    systemTrayManager.UpdateMenuStates(verboseNotifications, copyToClipboard);
+                    systemTrayManager.UpdateMenuStates(copyToClipboard);
                     SetupRecording();
                     SetupAudioService();
                     UpdateHotkeyConfiguration();
@@ -738,7 +761,7 @@ namespace RecordWhisperClient
                     silenceTimeoutMs = configForm.SilenceTimeoutMs;
 
                     SetupWhisperClient();
-                    systemTrayManager.UpdateMenuStates(verboseNotifications, copyToClipboard);
+                    systemTrayManager.UpdateMenuStates(copyToClipboard);
                     SetupAudioService();
                     UpdateHotkeyConfiguration();
 

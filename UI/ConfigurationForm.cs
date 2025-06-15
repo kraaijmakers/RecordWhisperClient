@@ -63,6 +63,7 @@ namespace RecordWhisperClient.UI
         private CheckBox hotkeyAltCheckBox;
         private ComboBox hotkeyKeyComboBox;
         private Label versionLabel;
+        private Label recordingLabel;
 
         public ConfigurationForm(string currentUrl, string currentPath, string currentSuffix, bool verboseNotifs, bool showRecordingNotifications, bool copyClipboard, bool transcriptionEnabled, string currentLanguage, string currentApiKey = "", int inputDeviceIndex = -1, bool volumeActivationEnabled = false, float volumeThreshold = 0.01f, int silenceTimeoutMs = 2000, bool hotkeyEnabled = true, bool hotkeyCtrl = true, bool hotkeyShift = true, bool hotkeyAlt = false, string hotkeyKey = "R")
         {
@@ -95,48 +96,28 @@ namespace RecordWhisperClient.UI
         private void InitializeComponent()
         {
             this.Text = "Configuration";
-            this.Size = new Size(520, 839);
+            this.Size = new Size(520, 855);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
 
-            // URL label
-            urlLabel = new Label
+            // Recording section label
+            recordingLabel = new Label
             {
-                Text = "Whisper Server URL (OpenAI-compatible transcription service):",
+                Text = "Recording:",
                 Location = new Point(12, 12),
-                Size = new Size(480, 20),
-                AutoSize = false
+                Size = new Size(200, 20),
+                AutoSize = false,
+                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
             };
-            this.Controls.Add(urlLabel);
-
-            // URL text box
-            urlTextBox = new TextBox
-            {
-                Text = WhisperServerUrl,
-                Location = new Point(12, 35),
-                Size = new Size(380, 23),
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
-            };
-            this.Controls.Add(urlTextBox);
-
-            // Test Connection button
-            testConnectionButton = new Button
-            {
-                Text = "Test Connection",
-                Location = new Point(397, 35),
-                Size = new Size(95, 23),
-                FlatStyle = FlatStyle.Flat
-            };
-            testConnectionButton.Click += TestConnectionButton_Click;
-            this.Controls.Add(testConnectionButton);
+            this.Controls.Add(recordingLabel);
 
             // Path label
             pathLabel = new Label
             {
                 Text = "Recordings Folder Path:",
-                Location = new Point(12, 70),
+                Location = new Point(12, 37),
                 Size = new Size(200, 20),
                 AutoSize = false
             };
@@ -146,7 +127,7 @@ namespace RecordWhisperClient.UI
             pathTextBox = new TextBox
             {
                 Text = RecordingsPath,
-                Location = new Point(12, 93),
+                Location = new Point(12, 60),
                 Size = new Size(400, 23),
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
             };
@@ -156,7 +137,7 @@ namespace RecordWhisperClient.UI
             browseButton = new Button
             {
                 Text = "Browse...",
-                Location = new Point(417, 93),
+                Location = new Point(417, 60),
                 Size = new Size(75, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -167,7 +148,7 @@ namespace RecordWhisperClient.UI
             suffixLabel = new Label
             {
                 Text = "Folder Name Suffix:",
-                Location = new Point(12, 128),
+                Location = new Point(12, 95),
                 Size = new Size(200, 20),
                 AutoSize = false
             };
@@ -177,56 +158,16 @@ namespace RecordWhisperClient.UI
             suffixTextBox = new TextBox
             {
                 Text = FolderSuffix,
-                Location = new Point(12, 151),
+                Location = new Point(12, 118),
                 Size = new Size(200, 23)
             };
             this.Controls.Add(suffixTextBox);
-
-            // Language label
-            languageLabel = new Label
-            {
-                Text = "Transcription Language (auto, en, es, fr, etc.):",
-                Location = new Point(12, 186),
-                Size = new Size(300, 20),
-                AutoSize = false
-            };
-            this.Controls.Add(languageLabel);
-
-            // Language text box
-            languageTextBox = new TextBox
-            {
-                Text = TranscriptionLanguage,
-                Location = new Point(12, 209),
-                Size = new Size(200, 23)
-            };
-            this.Controls.Add(languageTextBox);
-
-            // API Key label
-            apiKeyLabel = new Label
-            {
-                Text = "API Key (optional, for OpenAI-compatible services):",
-                Location = new Point(12, 244),
-                Size = new Size(300, 20),
-                AutoSize = false
-            };
-            this.Controls.Add(apiKeyLabel);
-
-            // API Key text box
-            apiKeyTextBox = new TextBox
-            {
-                Text = ApiKey,
-                Location = new Point(12, 267),
-                Size = new Size(480, 23),
-                UseSystemPasswordChar = true,
-                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
-            };
-            this.Controls.Add(apiKeyTextBox);
 
             // Input Device label
             inputDeviceLabel = new Label
             {
                 Text = "Audio Input Device:",
-                Location = new Point(12, 302),
+                Location = new Point(12, 153),
                 Size = new Size(200, 20),
                 AutoSize = false
             };
@@ -236,7 +177,7 @@ namespace RecordWhisperClient.UI
             inputDeviceComboBox = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(12, 325),
+                Location = new Point(12, 176),
                 Size = new Size(480, 23),
                 FlatStyle = FlatStyle.Flat,
                 Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
@@ -248,7 +189,7 @@ namespace RecordWhisperClient.UI
             {
                 Text = "Enable Volume Activation (automatic recording on sound)",
                 Checked = VolumeActivationEnabled,
-                Location = new Point(12, 360),
+                Location = new Point(12, 211),
                 Size = new Size(480, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -259,7 +200,7 @@ namespace RecordWhisperClient.UI
             volumeThresholdLabel = new Label
             {
                 Text = $"Volume Threshold: {(VolumeThreshold * 100):F0}%",
-                Location = new Point(12, 393),
+                Location = new Point(12, 244),
                 Size = new Size(200, 20),
                 AutoSize = false
             };
@@ -271,7 +212,7 @@ namespace RecordWhisperClient.UI
                 Minimum = 1,
                 Maximum = 20,
                 Value = (int)(VolumeThreshold * 100),
-                Location = new Point(12, 416),
+                Location = new Point(12, 267),
                 Size = new Size(300, 45),
                 TickFrequency = 5
             };
@@ -282,7 +223,7 @@ namespace RecordWhisperClient.UI
             silenceTimeoutLabel = new Label
             {
                 Text = "Silence Timeout (seconds):",
-                Location = new Point(330, 393),
+                Location = new Point(330, 244),
                 Size = new Size(150, 20),
                 AutoSize = false
             };
@@ -294,19 +235,113 @@ namespace RecordWhisperClient.UI
                 Minimum = 1,
                 Maximum = 30,
                 Value = SilenceTimeoutMs / 1000,
-                Location = new Point(330, 416),
+                Location = new Point(330, 267),
                 Size = new Size(60, 23),
                 DecimalPlaces = 0
             };
             this.Controls.Add(silenceTimeoutNumeric);
 
+            // Transcription section label
+            var transcriptionLabel = new Label
+            {
+                Text = "Transcription:",
+                Location = new Point(12, 322),
+                Size = new Size(200, 20),
+                AutoSize = false,
+                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
+            };
+            this.Controls.Add(transcriptionLabel);
+
+            // Transcription enabled checkbox
+            transcriptionEnabledCheckBox = new CheckBox
+            {
+                Text = "Enable Transcription",
+                Checked = TranscriptionEnabled,
+                Location = new Point(12, 347),
+                Size = new Size(200, 23),
+                FlatStyle = FlatStyle.Flat
+            };
+            this.Controls.Add(transcriptionEnabledCheckBox);
+
+            // URL label
+            urlLabel = new Label
+            {
+                Text = "Whisper Server URL (OpenAI-compatible transcription service):",
+                Location = new Point(12, 382),
+                Size = new Size(480, 20),
+                AutoSize = false
+            };
+            this.Controls.Add(urlLabel);
+
+            // URL text box
+            urlTextBox = new TextBox
+            {
+                Text = WhisperServerUrl,
+                Location = new Point(12, 405),
+                Size = new Size(380, 23),
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+            this.Controls.Add(urlTextBox);
+
+            // Test Connection button
+            testConnectionButton = new Button
+            {
+                Text = "Test Connection",
+                Location = new Point(397, 405),
+                Size = new Size(95, 23),
+                FlatStyle = FlatStyle.Flat
+            };
+            testConnectionButton.Click += TestConnectionButton_Click;
+            this.Controls.Add(testConnectionButton);
+
+            // Language label
+            languageLabel = new Label
+            {
+                Text = "Transcription Language (auto, en, es, fr, etc.):",
+                Location = new Point(12, 440),
+                Size = new Size(300, 20),
+                AutoSize = false
+            };
+            this.Controls.Add(languageLabel);
+
+            // Language text box
+            languageTextBox = new TextBox
+            {
+                Text = TranscriptionLanguage,
+                Location = new Point(12, 463),
+                Size = new Size(200, 23)
+            };
+            this.Controls.Add(languageTextBox);
+
+            // API Key label
+            apiKeyLabel = new Label
+            {
+                Text = "API Key (optional, for OpenAI-compatible services):",
+                Location = new Point(12, 498),
+                Size = new Size(300, 20),
+                AutoSize = false
+            };
+            this.Controls.Add(apiKeyLabel);
+
+            // API Key text box
+            apiKeyTextBox = new TextBox
+            {
+                Text = ApiKey,
+                Location = new Point(12, 521),
+                Size = new Size(480, 23),
+                UseSystemPasswordChar = true,
+                Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right
+            };
+            this.Controls.Add(apiKeyTextBox);
+
             // Options label
             optionsLabel = new Label
             {
                 Text = "Options:",
-                Location = new Point(12, 475),
+                Location = new Point(12, 565),
                 Size = new Size(200, 20),
-                AutoSize = false
+                AutoSize = false,
+                Font = new Font(SystemFonts.DefaultFont, FontStyle.Bold)
             };
             this.Controls.Add(optionsLabel);
 
@@ -314,7 +349,7 @@ namespace RecordWhisperClient.UI
             notificationModeLabel = new Label
             {
                 Text = "Notification Mode:",
-                Location = new Point(12, 498),
+                Location = new Point(12, 588),
                 Size = new Size(150, 20),
                 AutoSize = false
             };
@@ -324,7 +359,7 @@ namespace RecordWhisperClient.UI
             notificationModeComboBox = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(12, 521),
+                Location = new Point(12, 611),
                 Size = new Size(200, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -345,28 +380,17 @@ namespace RecordWhisperClient.UI
             {
                 Text = "Automatically copy to Clipboard",
                 Checked = CopyToClipboard,
-                Location = new Point(12, 554),
+                Location = new Point(12, 644),
                 Size = new Size(200, 23),
                 FlatStyle = FlatStyle.Flat
             };
             this.Controls.Add(clipboardCheckBox);
 
-            // Transcription enabled checkbox
-            transcriptionEnabledCheckBox = new CheckBox
-            {
-                Text = "Enable Transcription",
-                Checked = TranscriptionEnabled,
-                Location = new Point(12, 577),
-                Size = new Size(200, 23),
-                FlatStyle = FlatStyle.Flat
-            };
-            this.Controls.Add(transcriptionEnabledCheckBox);
-
             // Hotkey label
             hotkeyLabel = new Label
             {
                 Text = "Recording Hotkey:",
-                Location = new Point(12, 612),
+                Location = new Point(12, 679),
                 Size = new Size(200, 20),
                 AutoSize = false
             };
@@ -377,7 +401,7 @@ namespace RecordWhisperClient.UI
             {
                 Text = "Enable Global Hotkey",
                 Checked = HotkeyEnabled,
-                Location = new Point(12, 635),
+                Location = new Point(12, 702),
                 Size = new Size(150, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -389,7 +413,7 @@ namespace RecordWhisperClient.UI
             {
                 Text = "Ctrl",
                 Checked = HotkeyCtrl,
-                Location = new Point(12, 658),
+                Location = new Point(12, 725),
                 Size = new Size(60, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -401,7 +425,7 @@ namespace RecordWhisperClient.UI
             {
                 Text = "Shift",
                 Checked = HotkeyShift,
-                Location = new Point(80, 658),
+                Location = new Point(80, 725),
                 Size = new Size(60, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -413,7 +437,7 @@ namespace RecordWhisperClient.UI
             {
                 Text = "Alt",
                 Checked = HotkeyAlt,
-                Location = new Point(148, 658),
+                Location = new Point(148, 725),
                 Size = new Size(50, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -424,7 +448,7 @@ namespace RecordWhisperClient.UI
             hotkeyKeyComboBox = new ComboBox
             {
                 DropDownStyle = ComboBoxStyle.DropDownList,
-                Location = new Point(206, 658),
+                Location = new Point(206, 725),
                 Size = new Size(80, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -449,7 +473,7 @@ namespace RecordWhisperClient.UI
             versionLabel = new Label
             {
                 Text = $"{productName} v{version?.ToString(3) ?? "1.0.0"}",
-                Location = new Point(12, 693),
+                Location = new Point(12, 760),
                 Size = new Size(480, 20),
                 AutoSize = false,
                 TextAlign = ContentAlignment.MiddleCenter,
@@ -461,7 +485,7 @@ namespace RecordWhisperClient.UI
             openLogsButton = new Button
             {
                 Text = "Open Log Folder",
-                Location = new Point(12, 757),
+                Location = new Point(12, 795),
                 Size = new Size(120, 23),
                 FlatStyle = FlatStyle.Flat
             };
@@ -472,7 +496,7 @@ namespace RecordWhisperClient.UI
             okButton = new Button
             {
                 Text = "OK",
-                Location = new Point(335, 757),
+                Location = new Point(335, 795),
                 Size = new Size(75, 23),
                 DialogResult = DialogResult.OK,
                 FlatStyle = FlatStyle.Flat
@@ -484,7 +508,7 @@ namespace RecordWhisperClient.UI
             cancelButton = new Button
             {
                 Text = "Cancel",
-                Location = new Point(416, 757),
+                Location = new Point(416, 795),
                 Size = new Size(75, 23),
                 DialogResult = DialogResult.Cancel,
                 FlatStyle = FlatStyle.Flat
