@@ -198,7 +198,7 @@ dotnet publish -c Release -r win-x64 --self-contained true -p:PublishSingleFile=
 
 **Kevin Raaijmakers**
 - GitHub: [@kraaijmakers](https://github.com/kraaijmakers)
-- Project: [github.com/kraaijmakers/RecordWhisperClient](https://github.com/kraaijmakers)
+- Project: [github.com/kraaijmakers/RecordWhisperClient](https://github.com/kraaijmakers/RecordWhisperClient)
 
 ## 🔗 Related Projects
 
